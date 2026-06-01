@@ -89,7 +89,7 @@ export default function CalendarScreen({ navigation }: Props) {
 
         {/* 내 일정 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{formatDateLabel(selectedDate)}</Text>
+          <Text style={[styles.sectionTitle, { marginBottom: 12 }]}>{formatDateLabel(selectedDate)}</Text>
           {scheduleLoading ? (
             <ActivityIndicator color="#4A90E2" style={styles.spinner} />
           ) : daySchedules.length === 0 ? (
@@ -104,7 +104,15 @@ export default function CalendarScreen({ navigation }: Props) {
         {/* 친구 가용 현황 */}
         {friends.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>친구 현황</Text>
+            <View style={styles.sectionRow}>
+              <Text style={styles.sectionTitle}>친구 현황</Text>
+              <TouchableOpacity
+                style={styles.inviteBtn}
+                onPress={() => navigation.navigate('Invite', { date: selectedDate })}
+              >
+                <Text style={styles.inviteBtnText}>모임 잡기</Text>
+              </TouchableOpacity>
+            </View>
             {friends.map((friend) => (
               <FriendAvailabilityRow
                 key={friend.id}
@@ -176,6 +184,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
+  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  inviteBtn: {
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  inviteBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   greeting: { fontSize: 16, fontWeight: '700', color: '#222' },
   logoutText: { fontSize: 13, color: '#aaa' },
   scrollContent: { paddingBottom: 100 },

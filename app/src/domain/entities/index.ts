@@ -33,8 +33,27 @@ export type InviteStatus = 'pending' | 'accepted' | 'declined' | 'deferred';
 export interface Invite {
   id: string;
   fromUserId: string;
+  fromDisplayName: string;
   toUserIds: string[];
   date: string;
   responses: Record<string, { status: InviteStatus; reason?: string }>;
   chatRoomId?: string;
+  createdAt?: any;
+}
+
+export interface ChatRoom {
+  id: string;
+  inviteId: string;
+  participantIds: string[];
+  participantNames: Record<string, string>;
+  date: string;
+  createdAt?: any;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  createdAt?: any;
 }

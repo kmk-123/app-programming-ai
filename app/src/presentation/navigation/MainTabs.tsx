@@ -1,11 +1,27 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useEffect } from 'react';
 import { Text } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import CalendarStack from './CalendarStack';
 import FriendsStack from './FriendsStack';
+import ChatStack from './ChatStack';
+import InviteInboxScreen from '../screens/InviteInboxScreen';
+import { useAuthStore } from '../../application/stores/authStore';
+import { useInviteStore } from '../../application/stores/inviteStore';
 
 const Tab = createBottomTabNavigator();
 
 export default function MainTabs() {
+  const { user } = useAuthStore();
+  const { received, loadReceived } = useInviteStore();
+
+  useEffect(() => {
+    if (user) loadReceived(user.id);
+  }, [user]);
+
+  const pendingCount = user
+    ? received.filter((inv) => !inv.responses?.[user.id]).length
+    : 0;
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -30,7 +46,23 @@ export default function MainTabs() {
         options={{
           tabBarLabel: '친구',
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>👥</Text>,
-          tabBarBadge: undefined,
+        }}
+      />
+      <Tab.Screen
+        name="InviteTab"
+        component={InviteInboxScreen}
+        options={{
+          tabBarLabel: '초대함',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>✉️</Text>,
+          tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
+        }}
+      />
+      <Tab.Screen
+        name="ChatTab"
+        component={ChatStack}
+        options={{
+          tabBarLabel: '채팅',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>💬</Text>,
         }}
       />
     </Tab.Navigator>
