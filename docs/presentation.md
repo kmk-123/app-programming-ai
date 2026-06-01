@@ -212,7 +212,7 @@ style: |
 
 ## 🏗️ 아키텍처 설계 — 레이어드 아키텍처
 
-![fit](./architecture.png)
+![w:750](./architecture.png)
 
 ---
 
