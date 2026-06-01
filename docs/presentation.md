@@ -221,10 +221,12 @@ flowchart LR
         ST["인증 · 스케줄\n친구 · 초대 · 채팅 스토어"]
     end
     subgraph D["🧠 도메인 레이어"]
+        direction TB
         EN["엔티티: 사용자 · 스케줄\n친구 · 초대 · 채팅방 · 메시지"]
         SV["서비스: 스케줄 서비스\n(표시 날짜 계산 · 날짜별 필터)"]
     end
     subgraph DA["🗄️ 데이터 레이어"]
+        direction TB
         RE["인증 · 스케줄 · 친구\n초대 · 채팅 저장소"]
         FB["Firebase 인증\nFirestore · 푸시 알림"]
     end
