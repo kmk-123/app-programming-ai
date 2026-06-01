@@ -25,22 +25,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get install -y chromium-browser poppler-utils
-
-      - name: Render WBS to PDF
-        run: |
-          chromium-browser --headless --no-sandbox \
-            --print-to-pdf=docs/wbs.pdf \
-            --print-to-pdf-no-header \
-            file://$(pwd)/docs/index.html
-
-      - name: Append WBS to presentation PDF
-        run: |
-          pdfunite docs/presentation.pdf docs/wbs.pdf docs/combined.pdf
-          mv docs/combined.pdf docs/presentation.pdf
-          rm docs/wbs.pdf
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
