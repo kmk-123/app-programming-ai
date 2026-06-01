@@ -53,6 +53,7 @@ style: |
     margin-bottom: 16px;
   }
   section.title p { color: rgba(255,255,255,0.85); font-size: 26px; }
+  section.title strong { color: #fff; }
   section.title code {
     background: rgba(255,255,255,0.18);
     color: #fff;
