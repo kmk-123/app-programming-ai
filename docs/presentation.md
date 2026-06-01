@@ -229,7 +229,7 @@ style: |
 | 영역 | 기술 |
 |---|---|
 | 프레임워크 | React Native (Expo 54) |
-| 언어 | TypeScript |
+| 언어 | JavaScript |
 | 상태 관리 | Zustand 5 |
 | 라우팅 | React Navigation v7 |
 | 인증 | Firebase Auth |
