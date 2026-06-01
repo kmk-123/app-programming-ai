@@ -25,6 +25,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build PDF from presentation.md
+        run: npx --yes @marp-team/marp-cli@latest docs/presentation.md --pdf --allow-local-files -o docs/presentation.pdf
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

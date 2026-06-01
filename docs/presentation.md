@@ -257,3 +257,31 @@ Android 빌드 · 배포, 발표 자료
 
 </div>
 
+---
+
+## 📋 WBS 전체 현황
+
+<div style="font-size:19px;">
+
+| 영역 | 전체 | 완료 | 예정 | 상태 |
+|---|:---:|:---:|:---:|:---:|
+| 1. 사용자 영역 (인증 · 친구 관리) | 7 | 6 | 1 | 🟡 |
+| 2. 스케줄 영역 (고정 · 일회성 · 캘린더) | 9 | 9 | 0 | ✅ |
+| 3. 모임 잡기 (초대 · 응답 · 채팅) | 13 | 11 | 2 | 🟡 |
+| 4. 데이터 / 백엔드 (Firestore · Firebase) | 5 | 3 | 2 | 🟡 |
+| 5. 운영 (빌드 · 배포 · 모니터링) | 3 | 0 | 3 | ⬜ |
+| 6. 문서 / 발표 | 2 | 0 | 2 | ⬜ |
+| **합계** | **39** | **29** | **10** | **73%** |
+
+</div>
+
+<div style="margin-top:20px;">
+  <div style="background:#e2e8f0;border-radius:999px;height:14px;overflow:hidden;">
+    <div style="background:linear-gradient(90deg,#10b981,#34d399);height:100%;width:73%;border-radius:999px;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:15px;color:#64748b;margin-top:6px;">
+    <span>✅ 완료 29개 &nbsp;·&nbsp; ⬜ 예정 10개</span>
+    <span>전체 진행률 73% · 최종 발표 D-8</span>
+  </div>
+</div>
+
