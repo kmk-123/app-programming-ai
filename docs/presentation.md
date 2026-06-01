@@ -212,7 +212,11 @@ style: |
 
 ## 🏗️ 아키텍처 설계 — 레이어드 아키텍처
 
+<div style="text-align:center">
+
 ![w:900](./architecture.png)
+
+</div>
 
 ---
 
