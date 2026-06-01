@@ -20,6 +20,14 @@ export interface Friend {
   status: 'pending' | 'accepted';
 }
 
+export interface FriendRequest {
+  id: string;
+  fromUserId: string;
+  fromDisplayName: string;
+  fromEmail: string;
+  toUserId: string;
+}
+
 export type InviteStatus = 'pending' | 'accepted' | 'declined' | 'deferred';
 
 export interface Invite {

@@ -1,11 +1,12 @@
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import CalendarScreen from './src/presentation/screens/CalendarScreen';
+import RootNavigator from './src/presentation/navigation/RootNavigator';
 
 export default function App() {
   return (
-    <>
-      <CalendarScreen />
+    <SafeAreaProvider>
+      <RootNavigator />
       <StatusBar style="auto" />
-    </>
+    </SafeAreaProvider>
   );
 }

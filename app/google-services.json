@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "565704230789",
+    "project_id": "project-friendcal",
+    "storage_bucket": "project-friendcal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:565704230789:android:9c7d17075a4c2b758866ec",
+        "android_client_info": {
+          "package_name": "com.manki.scheduleapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuGpeJLTKqSq6LpmDOFX4t0XD19Rq3vos"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

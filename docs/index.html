@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WBS — 친구 스케줄 매칭 앱</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --primary: #6366f1;
+      --primary-light: #eef2ff;
+      --done: #10b981;
+      --done-light: #d1fae5;
+      --wip: #f59e0b;
+      --wip-light: #fef3c7;
+      --todo: #94a3b8;
+      --todo-light: #f1f5f9;
+      --phase-bg: #f0f4ff;
+      --group-bg: #f8fafc;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: #fff;
+      padding: 32px 40px 28px;
+    }
+    .site-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .site-header .subtitle {
+      margin-top: 4px;
+      opacity: 0.8;
+      font-size: 13px;
+    }
+    .header-meta {
+      margin-top: 16px;
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+      opacity: 0.85;
+    }
+    .header-meta span { display: flex; align-items: center; gap: 5px; }
+
+    /* ── Main layout ── */
+    .main { max-width: 1200px; margin: 0 auto; padding: 28px 40px 60px; }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+    .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 600; }
+    .stat-card .value { font-size: 30px; font-weight: 700; margin-top: 4px; }
+    .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .stat-card.done .value { color: var(--done); }
+    .stat-card.wip .value  { color: var(--wip); }
+    .stat-card.todo .value { color: var(--todo); }
+    .stat-card.total .value { color: var(--primary); }
+
+    /* ── Progress bar ── */
+    .progress-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .progress-section .prog-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+    }
+    .progress-track {
+      height: 10px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--done), #34d399);
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+    .progress-fill-wip {
+      height: 100%;
+      background: var(--wip);
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .stacked-bar {
+      display: flex;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .stacked-bar .seg-done { background: var(--done); }
+    .stacked-bar .seg-wip  { background: var(--wip); }
+    .stacked-bar .seg-todo { background: var(--border); }
+
+    /* ── Filters ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .toolbar .toolbar-title { font-weight: 700; font-size: 16px; margin-right: 8px; }
+    .filter-btn {
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+      color: var(--text-muted);
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .filter-btn.f-done.active  { background: var(--done); border-color: var(--done); }
+    .filter-btn.f-wip.active   { background: var(--wip); border-color: var(--wip); }
+
+    /* ── WBS Table ── */
+    .wbs-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+    table.wbs {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table.wbs thead th {
+      background: #f8fafc;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    table.wbs thead th:first-child { padding-left: 20px; }
+    table.wbs td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    table.wbs tr:last-child td { border-bottom: none; }
+
+    /* Phase row */
+    tr.row-phase td {
+      background: var(--phase-bg);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+      user-select: none;
+    }
+    tr.row-phase td:first-child { padding-left: 20px; }
+
+    /* Group row */
+    tr.row-group td {
+      background: var(--group-bg);
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+    tr.row-group td:first-child { padding-left: 30px; }
+
+    /* Task row */
+    tr.row-task td:first-child { padding-left: 44px; }
+    tr.row-task:hover td { background: #fafbff; }
+
+    .td-id { font-family: monospace; font-size: 12px; color: var(--text-muted); width: 70px; }
+    .td-name { min-width: 260px; }
+    .td-days { text-align: center; width: 60px; color: var(--text-muted); font-size: 13px; }
+    .td-week { text-align: center; width: 60px; }
+    .td-status { width: 90px; }
+    .td-bar { width: 120px; }
+
+    .week-badge {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .status-badge.done { background: var(--done-light); color: #065f46; }
+    .status-badge.wip  { background: var(--wip-light);  color: #92400e; }
+    .status-badge.todo { background: var(--todo-light); color: #475569; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .done .status-dot { background: var(--done); }
+    .wip  .status-dot { background: var(--wip); }
+    .todo .status-dot { background: #cbd5e1; }
+
+    .mini-bar-wrap { height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .mini-bar { height: 100%; border-radius: 999px; }
+    .mini-bar.done { background: var(--done); width: 100%; }
+    .mini-bar.wip  { background: var(--wip); width: 55%; }
+    .mini-bar.todo { background: #cbd5e1; width: 0%; }
+
+    .collapse-icon { margin-right: 6px; transition: transform 0.2s; display: inline-block; }
+    .collapsed .collapse-icon { transform: rotate(-90deg); }
+
+    /* ── Gantt ── */
+    .gantt-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+    .gantt-section h2 { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+    .gantt-grid {
+      display: grid;
+      grid-template-columns: 200px repeat(5, 1fr);
+      gap: 0;
+      font-size: 12px;
+    }
+    .gantt-header {
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 6px 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+    }
+    .gantt-header.task-col { text-align: left; padding-left: 0; }
+    .gantt-week-header {
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 6px 4px;
+      border-bottom: 2px solid var(--border);
+      color: var(--primary);
+    }
+    .gantt-week-header.current { background: #eef2ff; border-radius: 6px 6px 0 0; }
+    .gantt-task-name {
+      padding: 5px 6px 5px 0;
+      border-bottom: 1px solid #f1f5f9;
+      color: var(--text);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+    .gantt-cell {
+      padding: 4px;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: center;
+    }
+    .gantt-bar {
+      height: 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0 2px;
+    }
+    .gantt-bar.done { background: var(--done); }
+    .gantt-bar.wip  { background: var(--wip); }
+    .gantt-bar.todo { background: #cbd5e1; color: #64748b; }
+    .gantt-bar.empty { background: transparent; }
+    .current-week-col { background: #fafbff; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .main { padding: 16px 16px 40px; }
+      .site-header { padding: 20px 16px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .td-bar, .td-week { display: none; }
+      .gantt-section { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>📅 친구 스케줄 매칭 앱 — WBS 현황판</h1>
+  <div class="subtitle">Friend Schedule Matching App · React Native + Firebase</div>
+  <div class="header-meta">
+    <span>📌 레이어드 아키텍처 (Presentation / Application / Domain / Data)</span>
+    <span>🗓 기준일: <span id="today-label"></span></span>
+    <span>🏁 최종 발표: 2026-06-09</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card total">
+      <div class="label">전체 태스크</div>
+      <div class="value" id="cnt-total">0</div>
+      <div class="sub">리프 태스크 합계</div>
+    </div>
+    <div class="stat-card done">
+      <div class="label">완료</div>
+      <div class="value" id="cnt-done">0</div>
+      <div class="sub" id="days-done-label"></div>
+    </div>
+    <div class="stat-card wip">
+      <div class="label">진행중</div>
+      <div class="value" id="cnt-wip">0</div>
+      <div class="sub">작업 중인 태스크</div>
+    </div>
+    <div class="stat-card todo">
+      <div class="label">예정</div>
+      <div class="value" id="cnt-todo">0</div>
+      <div class="sub" id="days-todo-label"></div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="prog-label">
+      <span>전체 진행률 (일수 기준)</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="stacked-bar" id="stacked-bar"></div>
+    <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;">
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:3px;background:var(--done);display:inline-block;"></span> 완료</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:3px;background:var(--wip);display:inline-block;"></span> 진행중 (추정 55%)</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:3px;background:var(--border);display:inline-block;"></span> 예정</span>
+    </div>
+  </div>
+
+  <!-- WBS Table -->
+  <div class="toolbar">
+    <span class="toolbar-title">WBS 태스크 목록</span>
+    <button class="filter-btn active" onclick="setFilter('all', this)">전체</button>
+    <button class="filter-btn f-done" onclick="setFilter('done', this)">완료</button>
+    <button class="filter-btn f-wip"  onclick="setFilter('wip', this)">진행중</button>
+    <button class="filter-btn"        onclick="setFilter('todo', this)">예정</button>
+  </div>
+
+  <div class="wbs-card">
+    <table class="wbs" id="wbs-table">
+      <thead>
+        <tr>
+          <th class="td-id">ID</th>
+          <th class="td-name">태스크명</th>
+          <th class="td-days">추정</th>
+          <th class="td-week">주차</th>
+          <th class="td-status">상태</th>
+          <th class="td-bar">진행</th>
+        </tr>
+      </thead>
+      <tbody id="wbs-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Gantt -->
+  <div class="gantt-section">
+    <h2>📊 Gantt 차트 (주차별)</h2>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--done)"></div>완료</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--wip)"></div>진행중</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#cbd5e1"></div>예정</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#eef2ff;border:1px solid var(--primary)"></div>현재 주차</div>
+    </div>
+    <div class="gantt-grid" id="gantt-grid"></div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  WBS 자동 생성 · GitHub Pages · 최종 발표 D-<span id="d-day"></span>
+</footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────
+const WBS = [
+  {
+    id: "1", name: "사용자 영역", type: "phase",
+    children: [
+      {
+        id: "1.1", name: "인증", type: "group",
+        children: [
+          { id:"1.1.1", name:"회원가입 화면",                    days:1, status:"done", week:2 },
+          { id:"1.1.2", name:"로그인 화면",                      days:1, status:"done", week:2 },
+          { id:"1.1.3", name:"Firebase Auth 이메일/비밀번호 연동", days:1, status:"done", week:2 },
+          { id:"1.1.4", name:"비밀번호 재설정",                  days:1, status:"todo", week:5 },
+        ]
+      },
+      {
+        id: "1.2", name: "친구 관리", type: "group",
+        children: [
+          { id:"1.2.1", name:"친구 검색 화면",          days:1, status:"done", week:3 },
+          { id:"1.2.2", name:"친구 요청 발송 / 수락",  days:2, status:"wip",  week:3 },
+          { id:"1.2.3", name:"친구 목록 화면",          days:1, status:"done", week:3 },
+        ]
+      }
+    ]
+  },
+  {
+    id: "2", name: "스케줄 영역", type: "phase",
+    children: [
+      {
+        id: "2.1", name: "고정 스케줄", type: "group",
+        children: [
+          { id:"2.1.1", name:"고정 스케줄 등록 UI (요일·시간 반복)",  days:2, status:"done", week:3 },
+          { id:"2.1.2", name:"고정 스케줄 CRUD 로직",                 days:2, status:"done", week:3 },
+          { id:"2.1.3", name:"Firestore 저장 및 조회",                 days:1, status:"wip",  week:3 },
+        ]
+      },
+      {
+        id: "2.2", name: "일회성 스케줄", type: "group",
+        children: [
+          { id:"2.2.1", name:"일회성 스케줄 등록 UI (날짜·시간)",  days:1, status:"done", week:3 },
+          { id:"2.2.2", name:"일회성 스케줄 CRUD 로직",             days:1, status:"done", week:3 },
+          { id:"2.2.3", name:"Firestore 저장 및 조회",               days:1, status:"wip",  week:3 },
+        ]
+      },
+      {
+        id: "2.3", name: "캘린더 UI (메인 화면)", type: "group",
+        children: [
+          { id:"2.3.1", name:"월간 캘린더 뷰 렌더링",             days:2, status:"done", week:3 },
+          { id:"2.3.2", name:"날짜 선택 시 본인 일정 표시",        days:1, status:"wip",  week:3 },
+          { id:"2.3.3", name:"고정·일회성 스케줄 합산 표시 로직",  days:1, status:"wip",  week:3 },
+        ]
+      }
+    ]
+  },
+  {
+    id: "3", name: "모임 잡기 기능", type: "phase",
+    children: [
+      {
+        id: "3.1", name: "친구 가용 상태 조회", type: "group",
+        children: [
+          { id:"3.1.1", name:"날짜 기준 친구별 일정 유무 조회 로직",  days:2, status:"todo", week:4 },
+          { id:"3.1.2", name:"일정 있는/없는 친구 구분 표시 UI",     days:1, status:"todo", week:4 },
+        ]
+      },
+      {
+        id: "3.2", name: "초대 발송", type: "group",
+        children: [
+          { id:"3.2.1", name:"초대할 친구 선별 UI",                    days:1, status:"todo", week:4 },
+          { id:"3.2.2", name:"초대 데이터 생성 및 Firestore 저장",     days:1, status:"todo", week:4 },
+          { id:"3.2.3", name:"Firebase Cloud Messaging 푸시 알림 발송", days:2, status:"todo", week:4 },
+        ]
+      },
+      {
+        id: "3.3", name: "초대 응답", type: "group",
+        children: [
+          { id:"3.3.1", name:"초대 수신 화면 (수락/거절/보류)",         days:1, status:"todo", week:4 },
+          { id:"3.3.2", name:"거절·보류 시 사유 입력 UI",               days:1, status:"todo", week:4 },
+          { id:"3.3.3", name:"응답 저장 및 상태 업데이트 로직",         days:1, status:"todo", week:4 },
+          { id:"3.3.4", name:"거절·보류 사유 초대자에게 푸시 알림 발송", days:1, status:"todo", week:4 },
+        ]
+      },
+      {
+        id: "3.4", name: "채팅방 자동 생성", type: "group",
+        children: [
+          { id:"3.4.1", name:"수락자 목록 기반 채팅방 자동 생성 로직",    days:2, status:"todo", week:4 },
+          { id:"3.4.2", name:"채팅방 목록 화면",                          days:1, status:"todo", week:4 },
+          { id:"3.4.3", name:"채팅 UI (텍스트 메시지 송수신)",             days:2, status:"todo", week:5 },
+          { id:"3.4.4", name:"Firebase Realtime Database 채팅 연동",       days:2, status:"todo", week:5 },
+        ]
+      }
+    ]
+  },
+  {
+    id: "4", name: "데이터 / 백엔드", type: "phase",
+    children: [
+      {
+        id: "4.1", name: "Firestore 스키마 설계", type: "group",
+        children: [
+          { id:"4.1.1", name:"users, fixed_schedules, one_time_schedules",  days:1, status:"done", week:2 },
+          { id:"4.1.2", name:"invitations, chat_rooms, messages",           days:1, status:"todo", week:4 },
+        ]
+      },
+      {
+        id: "4.2", name: "Firebase 설정", type: "group",
+        children: [
+          { id:"4.2.1", name:"Firebase 프로젝트 세팅",          days:1, status:"done", week:2 },
+          { id:"4.2.2", name:"Firestore 보안 규칙 설정",         days:1, status:"todo", week:5 },
+          { id:"4.2.3", name:"FCM 서버 키 및 알림 페이로드 설계", days:1, status:"todo", week:4 },
+        ]
+      }
+    ]
+  },
+  {
+    id: "5", name: "운영", type: "phase",
+    children: [
+      {
+        id: "5.1", name: "빌드 / 배포", type: "group",
+        children: [
+          { id:"5.1.1", name:"Android 빌드 및 기기 테스트", days:1, status:"todo", week:5 },
+          { id:"5.1.2", name:"APK / Expo 배포",              days:1, status:"todo", week:5 },
+        ]
+      },
+      {
+        id: "5.2", name: "모니터링", type: "group",
+        children: [
+          { id:"5.2.1", name:"Firebase Crashlytics 연동", days:1, status:"todo", week:5 },
+        ]
+      }
+    ]
+  },
+  {
+    id: "6", name: "문서 / 발표", type: "phase",
+    children: [
+      {
+        id: "6.1", name: "README 및 설치 가이드", type: "group",
+        children: [
+          { id:"6.1.1", name:"README 및 설치 가이드 작성", days:1, status:"todo", week:6 },
+        ]
+      },
+      {
+        id: "6.2", name: "최종 발표 자료", type: "group",
+        children: [
+          { id:"6.2.1", name:"최종 발표 슬라이드 제작", days:2, status:"todo", week:6 },
+        ]
+      }
+    ]
+  }
+];
+
+const WEEKS = [
+  { label: "2주차", dates: "5/12–5/18", goal: "환경설정 · Firebase · 인증" },
+  { label: "3주차", dates: "5/19–5/25", goal: "스케줄 · 캘린더 · 친구" },
+  { label: "4주차", dates: "5/26–6/1",  goal: "초대 · 채팅방 생성" },
+  { label: "5주차", dates: "6/2–6/8",   goal: "채팅 · 테스트 · 배포" },
+  { label: "6주차", dates: "6/9",        goal: "최종 발표" },
+];
+const CURRENT_WEEK = 4; // 6/1 기준
+
+const STATUS_LABEL = { done:"완료", wip:"진행중", todo:"예정" };
+
+// ── Flatten & count ──────────────────────────────────────────────────
+let allLeafs = [];
+function collectLeafs(nodes) {
+  nodes.forEach(n => {
+    if (n.children) collectLeafs(n.children);
+    else allLeafs.push(n);
+  });
+}
+collectLeafs(WBS);
+
+let cntDone = 0, cntWip = 0, cntTodo = 0;
+let daysDone = 0, daysWip = 0, daysTodo = 0;
+allLeafs.forEach(t => {
+  if (t.status === "done")  { cntDone++;  daysDone  += t.days; }
+  if (t.status === "wip")   { cntWip++;   daysWip   += t.days; }
+  if (t.status === "todo")  { cntTodo++;  daysTodo  += t.days; }
+});
+const cntTotal = allLeafs.length;
+const daysTotal = daysDone + daysWip + daysTodo;
+const WIP_FACTOR = 0.55;
+const effDone = daysDone + daysWip * WIP_FACTOR;
+const pct = Math.round(effDone / daysTotal * 100);
+
+// ── Populate stats ───────────────────────────────────────────────────
+document.getElementById("cnt-total").textContent = cntTotal;
+document.getElementById("cnt-done").textContent  = cntDone;
+document.getElementById("cnt-wip").textContent   = cntWip;
+document.getElementById("cnt-todo").textContent  = cntTodo;
+document.getElementById("days-done-label").textContent = `누적 ${daysDone}일 완료`;
+document.getElementById("days-todo-label").textContent = `남은 ${daysTodo}일`;
+document.getElementById("prog-pct").textContent = pct + "%";
+
+// Stacked bar
+const bar = document.getElementById("stacked-bar");
+bar.innerHTML =
+  `<div class="seg-done"  style="flex:${daysDone}"></div>` +
+  `<div class="seg-wip"   style="flex:${daysWip * WIP_FACTOR}"></div>` +
+  `<div class="seg-todo"  style="flex:${daysTodo + daysWip * (1 - WIP_FACTOR)}"></div>`;
+
+// Dates
+const todayLabel = document.getElementById("today-label");
+const now = new Date();
+todayLabel.textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일`;
+
+const deadline = new Date("2026-06-09");
+const diff = Math.ceil((deadline - now) / 86400000);
+document.getElementById("d-day").textContent = diff > 0 ? diff : "DAY";
+
+// ── Render WBS table ─────────────────────────────────────────────────
+let currentFilter = "all";
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderTable();
+}
+
+const collapseState = {};
+
+function renderTable() {
+  const tbody = document.getElementById("wbs-tbody");
+  tbody.innerHTML = "";
+
+  WBS.forEach(phase => {
+    const leafsInPhase = [];
+    phase.children.forEach(g => g.children.forEach(t => leafsInPhase.push(t)));
+
+    const visible = currentFilter === "all" || leafsInPhase.some(t => t.status === currentFilter);
+    if (!visible) return;
+
+    const phaseKey = phase.id;
+    if (collapseState[phaseKey] === undefined) collapseState[phaseKey] = false;
+    const pCollapsed = collapseState[phaseKey];
+
+    // Phase header
+    const doneInPhase = leafsInPhase.filter(t => t.status === "done").length;
+    const phaseRow = document.createElement("tr");
+    phaseRow.className = "row-phase" + (pCollapsed ? " collapsed" : "");
+    phaseRow.innerHTML = `
+      <td class="td-id">${phase.id}</td>
+      <td class="td-name" colspan="5">
+        <span class="collapse-icon">▾</span>
+        ${phase.name}
+        <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:8px;">${doneInPhase}/${leafsInPhase.length} 완료</span>
+      </td>`;
+    phaseRow.addEventListener("click", () => {
+      collapseState[phaseKey] = !collapseState[phaseKey];
+      renderTable();
+    });
+    tbody.appendChild(phaseRow);
+
+    if (pCollapsed) return;
+
+    phase.children.forEach(group => {
+      const groupKey = phase.id + "." + group.id;
+      if (collapseState[groupKey] === undefined) collapseState[groupKey] = false;
+      const gCollapsed = collapseState[groupKey];
+
+      const tasksInGroup = group.children;
+      const gVisible = currentFilter === "all" || tasksInGroup.some(t => t.status === currentFilter);
+      if (!gVisible) return;
+
+      const doneInGroup = tasksInGroup.filter(t => t.status === "done").length;
+      const groupRow = document.createElement("tr");
+      groupRow.className = "row-group" + (gCollapsed ? " collapsed" : "");
+      groupRow.innerHTML = `
+        <td class="td-id">${group.id}</td>
+        <td class="td-name" colspan="5">
+          <span class="collapse-icon">▾</span>
+          ${group.name}
+          <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:8px;">${doneInGroup}/${tasksInGroup.length} 완료</span>
+        </td>`;
+      groupRow.addEventListener("click", () => {
+        collapseState[groupKey] = !collapseState[groupKey];
+        renderTable();
+      });
+      tbody.appendChild(groupRow);
+
+      if (gCollapsed) return;
+
+      tasksInGroup.forEach(task => {
+        if (currentFilter !== "all" && task.status !== currentFilter) return;
+        const tr = document.createElement("tr");
+        tr.className = "row-task";
+        tr.innerHTML = `
+          <td class="td-id">${task.id}</td>
+          <td class="td-name">${task.name}</td>
+          <td class="td-days">${task.days}d</td>
+          <td class="td-week"><span class="week-badge">W${task.week}</span></td>
+          <td class="td-status">
+            <span class="status-badge ${task.status}">
+              <span class="status-dot"></span>
+              ${STATUS_LABEL[task.status]}
+            </span>
+          </td>
+          <td class="td-bar">
+            <div class="mini-bar-wrap"><div class="mini-bar ${task.status}"></div></div>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    });
+  });
+}
+
+renderTable();
+
+// ── Gantt chart ───────────────────────────────────────────────────────
+const gantt = document.getElementById("gantt-grid");
+
+// Headers
+const phaseNameHeader = document.createElement("div");
+phaseNameHeader.className = "gantt-header task-col";
+phaseNameHeader.textContent = "영역";
+gantt.appendChild(phaseNameHeader);
+
+WEEKS.forEach((w, i) => {
+  const wh = document.createElement("div");
+  wh.className = "gantt-week-header" + (i + 2 === CURRENT_WEEK ? " current" : "");
+  wh.innerHTML = `<strong>${w.label}</strong><br><span style="font-size:10px;opacity:.7;">${w.dates}</span>`;
+  gantt.appendChild(wh);
+});
+
+// Row for each phase
+WBS.forEach(phase => {
+  const nameCell = document.createElement("div");
+  nameCell.className = "gantt-task-name";
+  nameCell.textContent = phase.name;
+  gantt.appendChild(nameCell);
+
+  const leafs = [];
+  phase.children.forEach(g => g.children.forEach(t => leafs.push(t)));
+  const totalDays = leafs.reduce((s, t) => s + t.days, 0);
+  const doneDays  = leafs.filter(t => t.status === "done").reduce((s, t) => s + t.days, 0);
+  const wipDays   = leafs.filter(t => t.status === "wip").reduce((s, t) => s + t.days, 0);
+
+  for (let w = 2; w <= 6; w++) {
+    const cell = document.createElement("div");
+    cell.className = "gantt-cell" + (w === CURRENT_WEEK ? " current-week-col" : "");
+    const tasksInWeek = leafs.filter(t => t.week === w);
+    if (tasksInWeek.length === 0) {
+      cell.innerHTML = "";
+    } else {
+      // Determine dominant status for visual
+      const hasDone = tasksInWeek.some(t => t.status === "done");
+      const hasWip  = tasksInWeek.some(t => t.status === "wip");
+      const hasTodo = tasksInWeek.some(t => t.status === "todo");
+      let cls = hasDone && !hasWip && !hasTodo ? "done" :
+                hasWip ? "wip" :
+                hasTodo ? "todo" : "done";
+      const cnt = tasksInWeek.length;
+      cell.innerHTML = `<div class="gantt-bar ${cls}">${cnt}건</div>`;
+    }
+    gantt.appendChild(cell);
+  }
+});
+
+// Summary row (overall)
+const summaryName = document.createElement("div");
+summaryName.className = "gantt-task-name";
+summaryName.style.cssText = "font-weight:700;border-top:2px solid var(--border);margin-top:4px;";
+summaryName.textContent = "전체 합계";
+gantt.appendChild(summaryName);
+
+for (let w = 2; w <= 6; w++) {
+  const cell = document.createElement("div");
+  cell.className = "gantt-cell" + (w === CURRENT_WEEK ? " current-week-col" : "");
+  cell.style.cssText = "border-top:2px solid var(--border);font-weight:700;";
+  const all = allLeafs.filter(t => t.week === w);
+  const dDays = all.filter(t => t.status === "done").reduce((s, t) => s + t.days, 0);
+  const wDays = all.filter(t => t.status === "wip").reduce((s, t) => s + t.days, 0);
+  const tDays = all.filter(t => t.status === "todo").reduce((s, t) => s + t.days, 0);
+  cell.innerHTML = `<div style="font-size:11px;text-align:center;padding:4px;color:var(--text-muted);">
+    ${dDays > 0 ? `<span style="color:var(--done);">${dDays}d</span>` : ""}
+    ${wDays > 0 ? `<span style="color:var(--wip);">+${wDays}d</span>` : ""}
+    ${tDays > 0 ? `<span style="color:#94a3b8;">+${tDays}d</span>` : ""}
+  </div>`;
+  gantt.appendChild(cell);
+}
+</script>
+
+</body>
+</html>
