@@ -22,7 +22,6 @@
       --phase-bg: #f0f4ff;
       --group-bg: #f8fafc;
       --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -33,35 +32,24 @@
       line-height: 1.6;
     }
 
-    /* ── Header ── */
     .site-header {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: #fff;
       padding: 32px 40px 28px;
     }
-    .site-header h1 {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-    .site-header .subtitle {
-      margin-top: 4px;
-      opacity: 0.8;
-      font-size: 13px;
-    }
+    .site-header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+    .site-header .subtitle { margin-top: 4px; opacity: 0.8; font-size: 13px; }
     .header-meta {
       margin-top: 16px;
       display: flex;
       gap: 20px;
       font-size: 12px;
       opacity: 0.85;
+      flex-wrap: wrap;
     }
-    .header-meta span { display: flex; align-items: center; gap: 5px; }
 
-    /* ── Main layout ── */
     .main { max-width: 1200px; margin: 0 auto; padding: 28px 40px 60px; }
 
-    /* ── Stats row ── */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -83,7 +71,6 @@
     .stat-card.todo .value { color: var(--todo); }
     .stat-card.total .value { color: var(--primary); }
 
-    /* ── Progress bar ── */
     .progress-section {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -92,31 +79,13 @@
       margin-bottom: 24px;
       box-shadow: var(--shadow);
     }
-    .progress-section .prog-label {
+    .prog-label {
       display: flex;
       justify-content: space-between;
       font-size: 13px;
       font-weight: 600;
       margin-bottom: 10px;
       color: var(--text-muted);
-    }
-    .progress-track {
-      height: 10px;
-      background: var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--done), #34d399);
-      border-radius: 999px;
-      transition: width 0.6s ease;
-    }
-    .progress-fill-wip {
-      height: 100%;
-      background: var(--wip);
-      border-radius: 999px;
-      display: inline-block;
     }
     .stacked-bar {
       display: flex;
@@ -128,7 +97,6 @@
     .stacked-bar .seg-wip  { background: var(--wip); }
     .stacked-bar .seg-todo { background: var(--border); }
 
-    /* ── Filters ── */
     .toolbar {
       display: flex;
       align-items: center;
@@ -136,7 +104,7 @@
       margin-bottom: 14px;
       flex-wrap: wrap;
     }
-    .toolbar .toolbar-title { font-weight: 700; font-size: 16px; margin-right: 8px; }
+    .toolbar-title { font-weight: 700; font-size: 16px; margin-right: 8px; }
     .filter-btn {
       padding: 5px 14px;
       border-radius: 999px;
@@ -153,7 +121,6 @@
     .filter-btn.f-done.active  { background: var(--done); border-color: var(--done); }
     .filter-btn.f-wip.active   { background: var(--wip); border-color: var(--wip); }
 
-    /* ── WBS Table ── */
     .wbs-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -162,10 +129,7 @@
       box-shadow: var(--shadow);
       margin-bottom: 28px;
     }
-    table.wbs {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    table.wbs { width: 100%; border-collapse: collapse; }
     table.wbs thead th {
       background: #f8fafc;
       padding: 10px 14px;
@@ -188,7 +152,6 @@
     }
     table.wbs tr:last-child td { border-bottom: none; }
 
-    /* Phase row */
     tr.row-phase td {
       background: var(--phase-bg);
       font-weight: 700;
@@ -198,8 +161,6 @@
       user-select: none;
     }
     tr.row-phase td:first-child { padding-left: 20px; }
-
-    /* Group row */
     tr.row-group td {
       background: var(--group-bg);
       font-weight: 600;
@@ -208,8 +169,6 @@
       user-select: none;
     }
     tr.row-group td:first-child { padding-left: 30px; }
-
-    /* Task row */
     tr.row-task td:first-child { padding-left: 44px; }
     tr.row-task:hover td { background: #fafbff; }
 
@@ -229,7 +188,6 @@
       background: var(--primary-light);
       color: var(--primary);
     }
-
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -256,7 +214,6 @@
     .collapse-icon { margin-right: 6px; transition: transform 0.2s; display: inline-block; }
     .collapsed .collapse-icon { transform: rotate(-90deg); }
 
-    /* ── Gantt ── */
     .gantt-section {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -272,82 +229,41 @@
       gap: 0;
       font-size: 12px;
     }
-    .gantt-header {
-      font-size: 11px;
-      font-weight: 700;
-      text-align: center;
-      padding: 6px 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      color: var(--text-muted);
-      border-bottom: 2px solid var(--border);
-    }
+    .gantt-header { font-size: 11px; font-weight: 700; text-align: center; padding: 6px 4px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); border-bottom: 2px solid var(--border); }
     .gantt-header.task-col { text-align: left; padding-left: 0; }
-    .gantt-week-header {
-      font-size: 11px;
-      font-weight: 700;
-      text-align: center;
-      padding: 6px 4px;
-      border-bottom: 2px solid var(--border);
-      color: var(--primary);
-    }
+    .gantt-week-header { font-size: 11px; font-weight: 700; text-align: center; padding: 6px 4px; border-bottom: 2px solid var(--border); color: var(--primary); }
     .gantt-week-header.current { background: #eef2ff; border-radius: 6px 6px 0 0; }
-    .gantt-task-name {
-      padding: 5px 6px 5px 0;
-      border-bottom: 1px solid #f1f5f9;
-      color: var(--text);
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-    }
-    .gantt-cell {
-      padding: 4px;
-      border-bottom: 1px solid #f1f5f9;
-      text-align: center;
-    }
-    .gantt-bar {
-      height: 20px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: #fff;
-      margin: 0 2px;
-    }
+    .gantt-task-name { padding: 5px 6px 5px 0; border-bottom: 1px solid #f1f5f9; color: var(--text); font-size: 12px; display: flex; align-items: center; }
+    .gantt-cell { padding: 4px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+    .gantt-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #fff; margin: 0 2px; }
     .gantt-bar.done { background: var(--done); }
     .gantt-bar.wip  { background: var(--wip); }
     .gantt-bar.todo { background: #cbd5e1; color: #64748b; }
-    .gantt-bar.empty { background: transparent; }
     .current-week-col { background: #fafbff; }
 
-    /* ── Legend ── */
-    .legend {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 12px;
-      font-size: 12px;
-    }
+    .legend { display: flex; gap: 16px; margin-bottom: 12px; font-size: 12px; }
     .legend-item { display: flex; align-items: center; gap: 6px; }
     .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
 
-    /* ── Footer ── */
-    .footer {
-      text-align: center;
-      padding: 20px;
-      color: var(--text-muted);
-      font-size: 12px;
-      border-top: 1px solid var(--border);
-      margin-top: 12px;
+    .update-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 8px;
+      border: 1px solid #fcd34d;
     }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 12px; }
 
     @media (max-width: 768px) {
       .main { padding: 16px 16px 40px; }
       .site-header { padding: 20px 16px; }
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .td-bar, .td-week { display: none; }
-      .gantt-section { overflow-x: auto; }
     }
   </style>
 </head>
@@ -355,17 +271,17 @@
 
 <header class="site-header">
   <h1>📅 친구 스케줄 매칭 앱 — WBS 현황판</h1>
-  <div class="subtitle">Friend Schedule Matching App · React Native + Firebase</div>
+  <div class="subtitle">Friend Schedule Matching App · React Native + Firebase · Layered Architecture</div>
   <div class="header-meta">
-    <span>📌 레이어드 아키텍처 (Presentation / Application / Domain / Data)</span>
+    <span>📌 Presentation / Application / Domain / Data</span>
     <span>🗓 기준일: <span id="today-label"></span></span>
     <span>🏁 최종 발표: 2026-06-09</span>
+    <span>🔄 마지막 업데이트: 2026-06-01</span>
   </div>
 </header>
 
 <main class="main">
 
-  <!-- Stats -->
   <div class="stats-row">
     <div class="stat-card total">
       <div class="label">전체 태스크</div>
@@ -389,7 +305,6 @@
     </div>
   </div>
 
-  <!-- Progress -->
   <div class="progress-section">
     <div class="prog-label">
       <span>전체 진행률 (일수 기준)</span>
@@ -398,12 +313,11 @@
     <div class="stacked-bar" id="stacked-bar"></div>
     <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;">
       <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:3px;background:var(--done);display:inline-block;"></span> 완료</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:3px;background:var(--wip);display:inline-block;"></span> 진행중 (추정 55%)</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:3px;background:var(--wip);display:inline-block;"></span> 진행중</span>
       <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:3px;background:var(--border);display:inline-block;"></span> 예정</span>
     </div>
   </div>
 
-  <!-- WBS Table -->
   <div class="toolbar">
     <span class="toolbar-title">WBS 태스크 목록</span>
     <button class="filter-btn active" onclick="setFilter('all', this)">전체</button>
@@ -428,7 +342,6 @@
     </table>
   </div>
 
-  <!-- Gantt -->
   <div class="gantt-section">
     <h2>📊 Gantt 차트 (주차별)</h2>
     <div class="legend">
@@ -447,7 +360,6 @@
 </footer>
 
 <script>
-// ── Data ──────────────────────────────────────────────────────────────
 const WBS = [
   {
     id: "1", name: "사용자 영역", type: "phase",
@@ -455,17 +367,17 @@ const WBS = [
       {
         id: "1.1", name: "인증", type: "group",
         children: [
-          { id:"1.1.1", name:"회원가입 화면",                    days:1, status:"done", week:2 },
-          { id:"1.1.2", name:"로그인 화면",                      days:1, status:"done", week:2 },
+          { id:"1.1.1", name:"회원가입 화면",                      days:1, status:"done", week:2 },
+          { id:"1.1.2", name:"로그인 화면",                        days:1, status:"done", week:2 },
           { id:"1.1.3", name:"Firebase Auth 이메일/비밀번호 연동", days:1, status:"done", week:2 },
-          { id:"1.1.4", name:"비밀번호 재설정",                  days:1, status:"todo", week:5 },
+          { id:"1.1.4", name:"비밀번호 재설정",                    days:1, status:"todo", week:5 },
         ]
       },
       {
         id: "1.2", name: "친구 관리", type: "group",
         children: [
-          { id:"1.2.1", name:"친구 검색 화면",          days:1, status:"done", week:3 },
-          { id:"1.2.2", name:"친구 요청 발송 / 수락",  days:2, status:"wip",  week:3 },
+          { id:"1.2.1", name:"친구 검색 화면",         days:1, status:"done", week:3 },
+          { id:"1.2.2", name:"친구 요청 발송 / 수락",  days:2, status:"done", week:3 },
           { id:"1.2.3", name:"친구 목록 화면",          days:1, status:"done", week:3 },
         ]
       }
@@ -477,25 +389,25 @@ const WBS = [
       {
         id: "2.1", name: "고정 스케줄", type: "group",
         children: [
-          { id:"2.1.1", name:"고정 스케줄 등록 UI (요일·시간 반복)",  days:2, status:"done", week:3 },
-          { id:"2.1.2", name:"고정 스케줄 CRUD 로직",                 days:2, status:"done", week:3 },
-          { id:"2.1.3", name:"Firestore 저장 및 조회",                 days:1, status:"wip",  week:3 },
+          { id:"2.1.1", name:"고정 스케줄 등록 UI (요일·시간 반복)", days:2, status:"done", week:3 },
+          { id:"2.1.2", name:"고정 스케줄 CRUD 로직",               days:2, status:"done", week:3 },
+          { id:"2.1.3", name:"Firestore 저장 및 조회",               days:1, status:"done", week:3 },
         ]
       },
       {
         id: "2.2", name: "일회성 스케줄", type: "group",
         children: [
-          { id:"2.2.1", name:"일회성 스케줄 등록 UI (날짜·시간)",  days:1, status:"done", week:3 },
-          { id:"2.2.2", name:"일회성 스케줄 CRUD 로직",             days:1, status:"done", week:3 },
-          { id:"2.2.3", name:"Firestore 저장 및 조회",               days:1, status:"wip",  week:3 },
+          { id:"2.2.1", name:"일회성 스케줄 등록 UI (날짜·시간)", days:1, status:"done", week:3 },
+          { id:"2.2.2", name:"일회성 스케줄 CRUD 로직",           days:1, status:"done", week:3 },
+          { id:"2.2.3", name:"Firestore 저장 및 조회",             days:1, status:"done", week:3 },
         ]
       },
       {
         id: "2.3", name: "캘린더 UI (메인 화면)", type: "group",
         children: [
-          { id:"2.3.1", name:"월간 캘린더 뷰 렌더링",             days:2, status:"done", week:3 },
-          { id:"2.3.2", name:"날짜 선택 시 본인 일정 표시",        days:1, status:"wip",  week:3 },
-          { id:"2.3.3", name:"고정·일회성 스케줄 합산 표시 로직",  days:1, status:"wip",  week:3 },
+          { id:"2.3.1", name:"월간 캘린더 뷰 렌더링",            days:2, status:"done", week:3 },
+          { id:"2.3.2", name:"날짜 선택 시 본인 일정 표시",       days:1, status:"done", week:3 },
+          { id:"2.3.3", name:"고정·일회성 스케줄 합산 표시 로직", days:1, status:"done", week:3 },
         ]
       }
     ]
@@ -506,34 +418,34 @@ const WBS = [
       {
         id: "3.1", name: "친구 가용 상태 조회", type: "group",
         children: [
-          { id:"3.1.1", name:"날짜 기준 친구별 일정 유무 조회 로직",  days:2, status:"todo", week:4 },
-          { id:"3.1.2", name:"일정 있는/없는 친구 구분 표시 UI",     days:1, status:"todo", week:4 },
+          { id:"3.1.1", name:"날짜 기준 친구별 일정 유무 조회 로직", days:2, status:"done", week:4 },
+          { id:"3.1.2", name:"일정 있는/없는 친구 구분 표시 UI",    days:1, status:"done", week:4 },
         ]
       },
       {
         id: "3.2", name: "초대 발송", type: "group",
         children: [
-          { id:"3.2.1", name:"초대할 친구 선별 UI",                    days:1, status:"todo", week:4 },
-          { id:"3.2.2", name:"초대 데이터 생성 및 Firestore 저장",     days:1, status:"todo", week:4 },
-          { id:"3.2.3", name:"Firebase Cloud Messaging 푸시 알림 발송", days:2, status:"todo", week:4 },
+          { id:"3.2.1", name:"초대할 친구 선별 UI",                    days:1, status:"done", week:4 },
+          { id:"3.2.2", name:"초대 데이터 생성 및 Firestore 저장",     days:1, status:"done", week:4 },
+          { id:"3.2.3", name:"Firebase Cloud Messaging 푸시 알림 발송", days:2, status:"todo", week:5 },
         ]
       },
       {
         id: "3.3", name: "초대 응답", type: "group",
         children: [
-          { id:"3.3.1", name:"초대 수신 화면 (수락/거절/보류)",         days:1, status:"todo", week:4 },
-          { id:"3.3.2", name:"거절·보류 시 사유 입력 UI",               days:1, status:"todo", week:4 },
-          { id:"3.3.3", name:"응답 저장 및 상태 업데이트 로직",         days:1, status:"todo", week:4 },
-          { id:"3.3.4", name:"거절·보류 사유 초대자에게 푸시 알림 발송", days:1, status:"todo", week:4 },
+          { id:"3.3.1", name:"초대 수신 화면 (수락/거절/보류)",          days:1, status:"done", week:4 },
+          { id:"3.3.2", name:"거절·보류 시 사유 입력 UI",               days:1, status:"done", week:4 },
+          { id:"3.3.3", name:"응답 저장 및 상태 업데이트 로직",         days:1, status:"done", week:4 },
+          { id:"3.3.4", name:"거절·보류 사유 초대자에게 푸시 알림 발송", days:1, status:"todo", week:5 },
         ]
       },
       {
         id: "3.4", name: "채팅방 자동 생성", type: "group",
         children: [
-          { id:"3.4.1", name:"수락자 목록 기반 채팅방 자동 생성 로직",    days:2, status:"todo", week:4 },
-          { id:"3.4.2", name:"채팅방 목록 화면",                          days:1, status:"todo", week:4 },
-          { id:"3.4.3", name:"채팅 UI (텍스트 메시지 송수신)",             days:2, status:"todo", week:5 },
-          { id:"3.4.4", name:"Firebase Realtime Database 채팅 연동",       days:2, status:"todo", week:5 },
+          { id:"3.4.1", name:"수락자 목록 기반 채팅방 자동 생성 로직", days:2, status:"done", week:4 },
+          { id:"3.4.2", name:"채팅방 목록 화면",                        days:1, status:"done", week:4 },
+          { id:"3.4.3", name:"채팅 UI (텍스트 메시지 송수신)",           days:2, status:"done", week:4 },
+          { id:"3.4.4", name:"Firestore onSnapshot 실시간 채팅 연동",    days:2, status:"done", week:4 },
         ]
       }
     ]
@@ -544,8 +456,8 @@ const WBS = [
       {
         id: "4.1", name: "Firestore 스키마 설계", type: "group",
         children: [
-          { id:"4.1.1", name:"users, fixed_schedules, one_time_schedules",  days:1, status:"done", week:2 },
-          { id:"4.1.2", name:"invitations, chat_rooms, messages",           days:1, status:"todo", week:4 },
+          { id:"4.1.1", name:"users, schedules 컬렉션",                  days:1, status:"done", week:2 },
+          { id:"4.1.2", name:"invites, chat_rooms, messages 컬렉션",     days:1, status:"done", week:4 },
         ]
       },
       {
@@ -553,7 +465,7 @@ const WBS = [
         children: [
           { id:"4.2.1", name:"Firebase 프로젝트 세팅",          days:1, status:"done", week:2 },
           { id:"4.2.2", name:"Firestore 보안 규칙 설정",         days:1, status:"todo", week:5 },
-          { id:"4.2.3", name:"FCM 서버 키 및 알림 페이로드 설계", days:1, status:"todo", week:4 },
+          { id:"4.2.3", name:"FCM 서버 키 및 알림 페이로드 설계", days:1, status:"todo", week:5 },
         ]
       }
     ]
@@ -599,14 +511,13 @@ const WEEKS = [
   { label: "2주차", dates: "5/12–5/18", goal: "환경설정 · Firebase · 인증" },
   { label: "3주차", dates: "5/19–5/25", goal: "스케줄 · 캘린더 · 친구" },
   { label: "4주차", dates: "5/26–6/1",  goal: "초대 · 채팅방 생성" },
-  { label: "5주차", dates: "6/2–6/8",   goal: "채팅 · 테스트 · 배포" },
+  { label: "5주차", dates: "6/2–6/8",   goal: "FCM · 테스트 · 배포" },
   { label: "6주차", dates: "6/9",        goal: "최종 발표" },
 ];
-const CURRENT_WEEK = 4; // 6/1 기준
+const CURRENT_WEEK = 4;
 
 const STATUS_LABEL = { done:"완료", wip:"진행중", todo:"예정" };
 
-// ── Flatten & count ──────────────────────────────────────────────────
 let allLeafs = [];
 function collectLeafs(nodes) {
   nodes.forEach(n => {
@@ -616,12 +527,11 @@ function collectLeafs(nodes) {
 }
 collectLeafs(WBS);
 
-let cntDone = 0, cntWip = 0, cntTodo = 0;
-let daysDone = 0, daysWip = 0, daysTodo = 0;
+let cntDone=0, cntWip=0, cntTodo=0, daysDone=0, daysWip=0, daysTodo=0;
 allLeafs.forEach(t => {
-  if (t.status === "done")  { cntDone++;  daysDone  += t.days; }
-  if (t.status === "wip")   { cntWip++;   daysWip   += t.days; }
-  if (t.status === "todo")  { cntTodo++;  daysTodo  += t.days; }
+  if (t.status==="done")  { cntDone++;  daysDone  += t.days; }
+  if (t.status==="wip")   { cntWip++;   daysWip   += t.days; }
+  if (t.status==="todo")  { cntTodo++;  daysTodo  += t.days; }
 });
 const cntTotal = allLeafs.length;
 const daysTotal = daysDone + daysWip + daysTodo;
@@ -629,7 +539,6 @@ const WIP_FACTOR = 0.55;
 const effDone = daysDone + daysWip * WIP_FACTOR;
 const pct = Math.round(effDone / daysTotal * 100);
 
-// ── Populate stats ───────────────────────────────────────────────────
 document.getElementById("cnt-total").textContent = cntTotal;
 document.getElementById("cnt-done").textContent  = cntDone;
 document.getElementById("cnt-wip").textContent   = cntWip;
@@ -638,23 +547,21 @@ document.getElementById("days-done-label").textContent = `누적 ${daysDone}일 
 document.getElementById("days-todo-label").textContent = `남은 ${daysTodo}일`;
 document.getElementById("prog-pct").textContent = pct + "%";
 
-// Stacked bar
 const bar = document.getElementById("stacked-bar");
 bar.innerHTML =
-  `<div class="seg-done"  style="flex:${daysDone}"></div>` +
-  `<div class="seg-wip"   style="flex:${daysWip * WIP_FACTOR}"></div>` +
-  `<div class="seg-todo"  style="flex:${daysTodo + daysWip * (1 - WIP_FACTOR)}"></div>`;
+  `<div class="seg-done" style="flex:${daysDone}"></div>` +
+  `<div class="seg-wip"  style="flex:${daysWip * WIP_FACTOR}"></div>` +
+  `<div class="seg-todo" style="flex:${daysTodo + daysWip*(1-WIP_FACTOR)}"></div>`;
 
-// Dates
-const todayLabel = document.getElementById("today-label");
 const now = new Date();
-todayLabel.textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일`;
+document.getElementById("today-label").textContent =
+  `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일`;
 
 const deadline = new Date("2026-06-09");
 const diff = Math.ceil((deadline - now) / 86400000);
 document.getElementById("d-day").textContent = diff > 0 ? diff : "DAY";
 
-// ── Render WBS table ─────────────────────────────────────────────────
+// ── WBS Table ─────────────────────────────────────────────────────────
 let currentFilter = "all";
 function setFilter(f, btn) {
   currentFilter = f;
@@ -672,7 +579,6 @@ function renderTable() {
   WBS.forEach(phase => {
     const leafsInPhase = [];
     phase.children.forEach(g => g.children.forEach(t => leafsInPhase.push(t)));
-
     const visible = currentFilter === "all" || leafsInPhase.some(t => t.status === currentFilter);
     if (!visible) return;
 
@@ -680,7 +586,6 @@ function renderTable() {
     if (collapseState[phaseKey] === undefined) collapseState[phaseKey] = false;
     const pCollapsed = collapseState[phaseKey];
 
-    // Phase header
     const doneInPhase = leafsInPhase.filter(t => t.status === "done").length;
     const phaseRow = document.createElement("tr");
     phaseRow.className = "row-phase" + (pCollapsed ? " collapsed" : "");
@@ -696,7 +601,6 @@ function renderTable() {
       renderTable();
     });
     tbody.appendChild(phaseRow);
-
     if (pCollapsed) return;
 
     phase.children.forEach(group => {
@@ -723,7 +627,6 @@ function renderTable() {
         renderTable();
       });
       tbody.appendChild(groupRow);
-
       if (gCollapsed) return;
 
       tasksInGroup.forEach(task => {
@@ -752,10 +655,9 @@ function renderTable() {
 
 renderTable();
 
-// ── Gantt chart ───────────────────────────────────────────────────────
+// ── Gantt ─────────────────────────────────────────────────────────────
 const gantt = document.getElementById("gantt-grid");
 
-// Headers
 const phaseNameHeader = document.createElement("div");
 phaseNameHeader.className = "gantt-header task-col";
 phaseNameHeader.textContent = "영역";
@@ -768,7 +670,6 @@ WEEKS.forEach((w, i) => {
   gantt.appendChild(wh);
 });
 
-// Row for each phase
 WBS.forEach(phase => {
   const nameCell = document.createElement("div");
   nameCell.className = "gantt-task-name";
@@ -777,9 +678,6 @@ WBS.forEach(phase => {
 
   const leafs = [];
   phase.children.forEach(g => g.children.forEach(t => leafs.push(t)));
-  const totalDays = leafs.reduce((s, t) => s + t.days, 0);
-  const doneDays  = leafs.filter(t => t.status === "done").reduce((s, t) => s + t.days, 0);
-  const wipDays   = leafs.filter(t => t.status === "wip").reduce((s, t) => s + t.days, 0);
 
   for (let w = 2; w <= 6; w++) {
     const cell = document.createElement("div");
@@ -788,21 +686,17 @@ WBS.forEach(phase => {
     if (tasksInWeek.length === 0) {
       cell.innerHTML = "";
     } else {
-      // Determine dominant status for visual
       const hasDone = tasksInWeek.some(t => t.status === "done");
       const hasWip  = tasksInWeek.some(t => t.status === "wip");
       const hasTodo = tasksInWeek.some(t => t.status === "todo");
-      let cls = hasDone && !hasWip && !hasTodo ? "done" :
-                hasWip ? "wip" :
-                hasTodo ? "todo" : "done";
-      const cnt = tasksInWeek.length;
-      cell.innerHTML = `<div class="gantt-bar ${cls}">${cnt}건</div>`;
+      const cls = hasDone && !hasWip && !hasTodo ? "done" : hasWip ? "wip" : "todo";
+      cell.innerHTML = `<div class="gantt-bar ${cls}">${tasksInWeek.length}건</div>`;
     }
     gantt.appendChild(cell);
   }
 });
 
-// Summary row (overall)
+// Summary row
 const summaryName = document.createElement("div");
 summaryName.className = "gantt-task-name";
 summaryName.style.cssText = "font-weight:700;border-top:2px solid var(--border);margin-top:4px;";
@@ -814,12 +708,12 @@ for (let w = 2; w <= 6; w++) {
   cell.className = "gantt-cell" + (w === CURRENT_WEEK ? " current-week-col" : "");
   cell.style.cssText = "border-top:2px solid var(--border);font-weight:700;";
   const all = allLeafs.filter(t => t.week === w);
-  const dDays = all.filter(t => t.status === "done").reduce((s, t) => s + t.days, 0);
-  const wDays = all.filter(t => t.status === "wip").reduce((s, t) => s + t.days, 0);
-  const tDays = all.filter(t => t.status === "todo").reduce((s, t) => s + t.days, 0);
+  const dDays = all.filter(t => t.status === "done").reduce((s,t) => s+t.days, 0);
+  const wDays = all.filter(t => t.status === "wip").reduce((s,t)  => s+t.days, 0);
+  const tDays = all.filter(t => t.status === "todo").reduce((s,t) => s+t.days, 0);
   cell.innerHTML = `<div style="font-size:11px;text-align:center;padding:4px;color:var(--text-muted);">
-    ${dDays > 0 ? `<span style="color:var(--done);">${dDays}d</span>` : ""}
-    ${wDays > 0 ? `<span style="color:var(--wip);">+${wDays}d</span>` : ""}
+    ${dDays > 0 ? `<span style="color:var(--done);">${dDays}d✓</span> ` : ""}
+    ${wDays > 0 ? `<span style="color:var(--wip);">+${wDays}d</span> ` : ""}
     ${tDays > 0 ? `<span style="color:#94a3b8;">+${tDays}d</span>` : ""}
   </div>`;
   gantt.appendChild(cell);
