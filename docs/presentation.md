@@ -177,10 +177,6 @@ style: |
   <span class="pain-icon">📆</span>
   <span class="pain-text"><strong>친구의 스케줄을 알 수 없어</strong> — 일정이 있는 친구에게도 무작정 초대 발송</span>
 </div>
-<div class="pain-box">
-  <span class="pain-icon">🙊</span>
-  <span class="pain-text">거절할 때 <strong>이유 설명이 어색</strong> — 의사소통 단절, 관계에 어색함 발생</span>
-</div>
 
 ---
 
@@ -280,21 +276,3 @@ Android 빌드 · 배포, 발표 자료
 
 </div>
 
----
-
-<!-- _class: outro -->
-<!-- _paginate: false -->
-
-# 🎬 감사합니다
-
-**데모를 시작하겠습니다**
-
-<br>
-
-`github.com/kmk-123/app-programming-ai`
-
-<br>
-
-<p style="font-size:20px;opacity:.6;">
-  캘린더 → 모임 잡기 → 초대 응답 → 채팅 순으로 진행합니다
-</p>
