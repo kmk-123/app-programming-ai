@@ -212,31 +212,7 @@ style: |
 
 ## 🏗️ 아키텍처 설계 — 레이어드 아키텍처
 
-```mermaid
-flowchart TD
-    subgraph P["📱 프레젠테이션 레이어 — 화면 & 내비게이션"]
-        SC["로그인 · 캘린더 · 초대 · 채팅 화면 외 9개\n+ 루트 내비게이터 · 메인 탭 · 캘린더/친구/채팅 스택"]
-    end
-    subgraph A["⚙️ 애플리케이션 레이어 — 상태 관리 (Zustand)"]
-        ST["인증 · 스케줄 · 친구 · 초대 · 채팅 스토어"]
-    end
-    subgraph D["🧠 도메인 레이어 — 비즈니스 규칙"]
-        EN["엔티티: 사용자 · 스케줄 · 친구 · 초대 · 채팅방 · 메시지"]
-        SV["서비스: 스케줄 서비스 (표시 날짜 계산 · 날짜별 필터)"]
-    end
-    subgraph DA["🗄️ 데이터 레이어 — Firebase 연동"]
-        RE["인증 · 스케줄 · 친구 · 초대 · 채팅 저장소"]
-        FB["Firebase 인증 · Firestore · 푸시 알림(FCM)"]
-    end
-    P -->|"액션 / 이벤트"| A
-    A -->|"유스케이스 호출"| D
-    D -->|"저장 / 조회"| DA
-
-    style P  fill:#eef2ff,stroke:#6366f1,color:#1e293b
-    style A  fill:#fef3c7,stroke:#f59e0b,color:#1e293b
-    style D  fill:#d1fae5,stroke:#10b981,color:#1e293b
-    style DA fill:#fce7f3,stroke:#ec4899,color:#1e293b
-```
+![w:900 h:420](./architecture.png)
 
 ---
 
