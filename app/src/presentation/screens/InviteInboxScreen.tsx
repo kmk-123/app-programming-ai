@@ -2,13 +2,15 @@ import { useState, useCallback } from 'react';
 import {
   View,
   Text,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   StyleSheet,
   Modal,
   TextInput,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -20,26 +22,46 @@ type RespondAction = 'accepted' | 'declined' | 'deferred';
 
 export default function InviteInboxScreen() {
   const { user } = useAuthStore();
-  const { received, loading, loadReceived, respond } = useInviteStore();
+  const { received, sent, loading, loadReceived, loadSent, respond } = useInviteStore();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [pendingAction, setPendingAction] = useState<{ invite: Invite; action: RespondAction } | null>(null);
+  const [pendingAction, setPendingAction] = useState<{ invite: Invite; action: 'declined' } | null>(null);
   const [reason, setReason] = useState('');
   const [responding, setResponding] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      if (user) loadReceived(user.id);
+      if (user) {
+        loadReceived(user.id);
+        loadSent(user.id);
+      }
     }, [user]),
+  );
+
+  const myStatus = (invite: Invite): InviteStatus | null => {
+    if (!user) return null;
+    return invite.responses?.[user.id]?.status ?? null;
+  };
+
+  const pending  = received.filter((inv) => !myStatus(inv));
+  const deferred = received.filter((inv) => myStatus(inv) === 'deferred');
+
+  // 거절 or 보류 응답이 하나라도 있는 보낸 초대만 표시
+  const sentWithResponses = sent.filter((inv) =>
+    Object.values(inv.responses ?? {}).some(
+      (r) => r.status === 'declined' || r.status === 'deferred',
+    ),
   );
 
   const handleRespond = (invite: Invite, action: RespondAction) => {
     if (action === 'accepted') {
-      confirmRespond(invite, action, undefined);
-    } else {
-      setPendingAction({ invite, action });
+      confirmRespond(invite, 'accepted', undefined);
+    } else if (action === 'declined') {
+      setPendingAction({ invite, action: 'declined' });
       setReason('');
       setModalVisible(true);
+    } else {
+      confirmRespond(invite, 'deferred', undefined);
     }
   };
 
@@ -65,14 +87,6 @@ export default function InviteInboxScreen() {
     }
   };
 
-  const myResponse = (invite: Invite): InviteStatus | null => {
-    if (!user) return null;
-    return invite.responses?.[user.id]?.status ?? null;
-  };
-
-  const pending = received.filter((inv) => !myResponse(inv));
-  const responded = received.filter((inv) => !!myResponse(inv));
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -84,35 +98,65 @@ export default function InviteInboxScreen() {
 
       {loading ? (
         <ActivityIndicator color="#4A90E2" style={styles.spinner} />
+      ) : pending.length === 0 && deferred.length === 0 && sentWithResponses.length === 0 ? (
+        <Text style={styles.empty}>받은 초대가 없어요</Text>
       ) : (
-        <FlatList
-          data={[...pending, ...responded]}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            <Text style={styles.empty}>받은 초대가 없어요</Text>
-          }
-          renderItem={({ item }) => {
-            const status = myResponse(item);
-            return (
-              <InviteCard
-                invite={item}
-                myStatus={status}
-                onRespond={(action) => handleRespond(item, action)}
-                responding={responding}
-              />
-            );
-          }}
-        />
+        <ScrollView contentContainerStyle={styles.list}>
+          {/* 미응답 */}
+          {pending.length > 0 && (
+            <>
+              <Text style={styles.sectionLabel}>미응답</Text>
+              {pending.map((inv) => (
+                <InviteCard
+                  key={inv.id}
+                  invite={inv}
+                  mode="pending"
+                  onAccept={() => handleRespond(inv, 'accepted')}
+                  onDefer={() => handleRespond(inv, 'deferred')}
+                  onDecline={() => handleRespond(inv, 'declined')}
+                  responding={responding}
+                />
+              ))}
+            </>
+          )}
+
+          {/* 보류중 */}
+          {deferred.length > 0 && (
+            <>
+              <Text style={styles.sectionLabel}>보류중</Text>
+              {deferred.map((inv) => (
+                <InviteCard
+                  key={inv.id}
+                  invite={inv}
+                  mode="deferred"
+                  onAccept={() => handleRespond(inv, 'accepted')}
+                  onDecline={() => handleRespond(inv, 'declined')}
+                  responding={responding}
+                />
+              ))}
+            </>
+          )}
+
+          {/* 보낸 초대 응답 */}
+          {sentWithResponses.length > 0 && (
+            <>
+              <Text style={styles.sectionLabel}>보낸 초대 응답</Text>
+              {sentWithResponses.map((inv) => (
+                <SentInviteCard key={inv.id} invite={inv} />
+              ))}
+            </>
+          )}
+        </ScrollView>
       )}
 
-      {/* 거절/보류 사유 모달 */}
+      {/* 거절 사유 모달 */}
       <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>
-              {pendingAction?.action === 'declined' ? '거절 사유' : '보류 사유'}
-            </Text>
+            <Text style={styles.modalTitle}>거절 사유</Text>
             <Text style={styles.modalHint}>사유를 입력하면 초대자에게 전달돼요 (선택)</Text>
             <TextInput
               style={styles.reasonInput}
@@ -126,18 +170,14 @@ export default function InviteInboxScreen() {
             <View style={styles.modalBtns}>
               <TouchableOpacity
                 style={styles.cancelBtn}
-                onPress={() => {
-                  setModalVisible(false);
-                  setPendingAction(null);
-                }}
+                onPress={() => { setModalVisible(false); setPendingAction(null); }}
               >
                 <Text style={styles.cancelText}>취소</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.confirmBtn}
                 onPress={() =>
-                  pendingAction &&
-                  confirmRespond(pendingAction.invite, pendingAction.action, reason)
+                  pendingAction && confirmRespond(pendingAction.invite, 'declined', reason)
                 }
                 disabled={responding}
               >
@@ -149,7 +189,7 @@ export default function InviteInboxScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
@@ -157,29 +197,22 @@ export default function InviteInboxScreen() {
 
 function InviteCard({
   invite,
-  myStatus,
-  onRespond,
+  mode,
+  onAccept,
+  onDefer,
+  onDecline,
   responding,
 }: {
   invite: Invite;
-  myStatus: InviteStatus | null;
-  onRespond: (action: RespondAction) => void;
+  mode: 'pending' | 'deferred';
+  onAccept?: () => void;
+  onDefer?: () => void;
+  onDecline?: () => void;
   responding: boolean;
 }) {
   const d = new Date(invite.date);
   const days = ['일', '월', '화', '수', '목', '금', '토'];
   const dateLabel = `${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
-
-  const statusColors: Record<string, string> = {
-    accepted: '#34C759',
-    declined: '#FF3B30',
-    deferred: '#FF9500',
-  };
-  const statusLabels: Record<string, string> = {
-    accepted: '수락함',
-    declined: '거절함',
-    deferred: '보류함',
-  };
 
   return (
     <View style={styles.card}>
@@ -195,40 +228,66 @@ function InviteCard({
           </Text>
           <Text style={styles.cardDate}>{dateLabel}</Text>
         </View>
-        {myStatus && (
-          <View style={[styles.statusChip, { backgroundColor: statusColors[myStatus] + '22' }]}>
-            <Text style={[styles.statusChipText, { color: statusColors[myStatus] }]}>
-              {statusLabels[myStatus]}
-            </Text>
+        {mode === 'deferred' && (
+          <View style={[styles.statusChip, { backgroundColor: '#FF950022' }]}>
+            <Text style={[styles.statusChipText, { color: '#FF9500' }]}>보류중</Text>
           </View>
         )}
       </View>
 
-      {!myStatus && (
+      {mode === 'pending' && (
         <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.acceptBtn}
-            onPress={() => onRespond('accepted')}
-            disabled={responding}
-          >
+          <TouchableOpacity style={styles.acceptBtn} onPress={onAccept} disabled={responding}>
             <Text style={styles.acceptText}>수락</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.deferBtn}
-            onPress={() => onRespond('deferred')}
-            disabled={responding}
-          >
+          <TouchableOpacity style={styles.deferBtn} onPress={onDefer} disabled={responding}>
             <Text style={styles.deferText}>보류</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.declineBtn}
-            onPress={() => onRespond('declined')}
-            disabled={responding}
-          >
+          <TouchableOpacity style={styles.declineBtn} onPress={onDecline} disabled={responding}>
             <Text style={styles.declineText}>거절</Text>
           </TouchableOpacity>
         </View>
       )}
+
+      {mode === 'deferred' && (
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.acceptBtn} onPress={onAccept} disabled={responding}>
+            <Text style={styles.acceptText}>수락</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.declineBtn} onPress={onDecline} disabled={responding}>
+            <Text style={styles.declineText}>거절</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+}
+
+function SentInviteCard({ invite }: { invite: Invite }) {
+  const d = new Date(invite.date);
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const dateLabel = `${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+
+  const statusLabel: Record<string, string> = { declined: '거절', deferred: '보류' };
+  const statusColor: Record<string, string> = { declined: '#FF3B30', deferred: '#FF9500' };
+
+  const noteworthyResponses = Object.values(invite.responses ?? {}).filter(
+    (r) => r.status === 'declined' || r.status === 'deferred',
+  );
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardDate}>{dateLabel} 모임</Text>
+      {noteworthyResponses.map((r, i) => (
+        <View key={i} style={styles.responseRow}>
+          <Text style={[styles.responseStatus, { color: statusColor[r.status] }]}>
+            {r.displayName ?? '알 수 없음'} · {statusLabel[r.status]}
+          </Text>
+          {r.reason ? (
+            <Text style={styles.responseReason}>"{r.reason}"</Text>
+          ) : null}
+        </View>
+      ))}
     </View>
   );
 }
@@ -255,8 +314,18 @@ const styles = StyleSheet.create({
   },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
   spinner: { marginTop: 40 },
+  empty: { color: '#bbb', textAlign: 'center', paddingTop: 60, fontSize: 14 },
   list: { padding: 16, paddingBottom: 40 },
-  empty: { color: '#bbb', textAlign: 'center', paddingVertical: 40, fontSize: 14 },
+
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#aaa',
+    letterSpacing: 0.5,
+    marginTop: 8,
+    marginBottom: 10,
+    textTransform: 'uppercase',
+  },
 
   card: {
     borderWidth: 1,
@@ -291,6 +360,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   statusChipText: { fontSize: 12, fontWeight: '700' },
+
   actions: { flexDirection: 'row', gap: 8, marginTop: 12 },
   acceptBtn: {
     flex: 1,
@@ -357,4 +427,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   confirmText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+
+  responseRow: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#f5f5f5' },
+  responseStatus: { fontSize: 14, fontWeight: '700' },
+  responseReason: { fontSize: 13, color: '#888', marginTop: 3, fontStyle: 'italic' },
 });

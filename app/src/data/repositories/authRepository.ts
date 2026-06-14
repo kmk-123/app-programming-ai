@@ -26,6 +26,10 @@ export const authRepository = {
     await auth().signOut();
   },
 
+  async resetPassword(email: string): Promise<void> {
+    await auth().sendPasswordResetEmail(email);
+  },
+
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
     return auth().onAuthStateChanged((fbUser) => {
       if (fbUser) {

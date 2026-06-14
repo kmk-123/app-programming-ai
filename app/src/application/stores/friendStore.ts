@@ -7,7 +7,7 @@ import { getSchedulesForDate } from '../../domain/services/scheduleService';
 interface FriendState {
   friends: User[];
   requests: FriendRequest[];
-  availability: Record<string, 'busy' | 'free'>;
+  availability: Record<string, string[]>; // 일정 제목 배열, 빈 배열 = 한가함
   loading: boolean;
   loadFriends: (userId: string) => Promise<void>;
   loadRequests: (userId: string) => Promise<void>;
@@ -68,10 +68,10 @@ export const useFriendStore = create<FriendState>((set) => ({
       return;
     }
     const allSchedules = await scheduleRepository.getByUserIds(friendIds);
-    const availability: Record<string, 'busy' | 'free'> = {};
+    const availability: Record<string, string[]> = {};
     for (const friendId of friendIds) {
       const friendSchedules = allSchedules.filter((s) => s.userId === friendId);
-      availability[friendId] = getSchedulesForDate(friendSchedules, date).length > 0 ? 'busy' : 'free';
+      availability[friendId] = getSchedulesForDate(friendSchedules, date).map((s) => s.title);
     }
     set({ availability });
   },

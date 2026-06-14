@@ -6,20 +6,26 @@ import { useAuthStore } from '../../application/stores/authStore';
 import AuthInput from '../components/AuthInput';
 import PrimaryButton from '../components/PrimaryButton';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
-export default function LoginScreen({ navigation }: Props) {
+export default function ForgotPasswordScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { signIn, loading, error, clearError } = useAuthStore();
+  const { resetPassword, loading, error, clearError } = useAuthStore();
 
   useEffect(() => {
     if (error) {
-      Alert.alert('로그인 실패', error, [{ text: '확인', onPress: clearError }]);
+      Alert.alert('오류', error, [{ text: '확인', onPress: clearError }]);
     }
   }, [error]);
 
-  const handleLogin = () => signIn(email.trim(), password);
+  const handleReset = async () => {
+    await resetPassword(email.trim());
+    Alert.alert(
+      '이메일 전송 완료',
+      '비밀번호 재설정 링크를 이메일로 보냈어요. 메일함을 확인해 주세요.',
+      [{ text: '확인', onPress: () => navigation.goBack() }],
+    );
+  };
 
   return (
     <ScrollView
@@ -27,7 +33,10 @@ export default function LoginScreen({ navigation }: Props) {
       keyboardShouldPersistTaps="handled"
     >
       <Text style={styles.appTitle}>친구 스케줄 매칭</Text>
-      <Text style={styles.screenTitle}>로그인</Text>
+      <Text style={styles.screenTitle}>비밀번호 재설정</Text>
+      <Text style={styles.description}>
+        가입하신 이메일 주소를 입력하면{'\n'}재설정 링크를 보내드려요.
+      </Text>
 
       <AuthInput
         label="이메일"
@@ -37,33 +46,17 @@ export default function LoginScreen({ navigation }: Props) {
         autoCapitalize="none"
         placeholder="이메일을 입력하세요"
       />
-      <AuthInput
-        label="비밀번호"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholder="비밀번호를 입력하세요"
-      />
 
       <PrimaryButton
-        label="로그인"
-        onPress={handleLogin}
+        label="재설정 링크 보내기"
+        onPress={handleReset}
         loading={loading}
-        disabled={!email || !password}
+        disabled={!email}
       />
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>계정이 없으신가요? </Text>
-        <Text style={styles.link} onPress={() => navigation.navigate('SignUp')}>
-          회원가입
-        </Text>
-      </View>
-      <View style={[styles.footer, { marginTop: 12 }]}>
-        <Text
-          style={styles.link}
-          onPress={() => navigation.navigate('ForgotPassword')}
-        >
-          비밀번호를 잊으셨나요?
+        <Text style={styles.link} onPress={() => navigation.goBack()}>
+          로그인으로 돌아가기
         </Text>
       </View>
     </ScrollView>
@@ -89,13 +82,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#555',
     textAlign: 'center',
-    marginBottom: 36,
+    marginBottom: 12,
+  },
+  description: {
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 28,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 24,
   },
-  footerText: { color: '#888', fontSize: 14 },
   link: { color: '#4A90E2', fontSize: 14, fontWeight: '700' },
 });

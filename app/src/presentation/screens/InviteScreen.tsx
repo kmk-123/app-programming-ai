@@ -76,7 +76,8 @@ export default function InviteScreen({ navigation, route }: Props) {
         contentContainerStyle={styles.list}
         ListEmptyComponent={<Text style={styles.empty}>친구가 없어요{'\n'}친구 탭에서 추가해보세요</Text>}
         renderItem={({ item }) => {
-          const status = availability[item.id];
+          const titles = availability[item.id];
+          const isBusy = titles && titles.length > 0;
           const isSelected = selected.has(item.id);
           return (
             <TouchableOpacity
@@ -89,8 +90,8 @@ export default function InviteScreen({ navigation, route }: Props) {
               </View>
               <View style={styles.info}>
                 <Text style={styles.name}>{item.displayName}</Text>
-                <Text style={[styles.statusText, status === 'busy' ? styles.busy : styles.free]}>
-                  {status === 'busy' ? '이 날 바쁨' : '한가함'}
+                <Text style={[styles.statusText, isBusy ? styles.busy : styles.free]} numberOfLines={1}>
+                  {isBusy ? titles!.join(', ') : '한가함'}
                 </Text>
               </View>
               <View style={[styles.check, isSelected && styles.checkSelected]}>

@@ -117,7 +117,7 @@ export default function CalendarScreen({ navigation }: Props) {
               <FriendAvailabilityRow
                 key={friend.id}
                 friend={friend}
-                status={availability[friend.id]}
+                titles={availability[friend.id]}
               />
             ))}
           </View>
@@ -137,10 +137,16 @@ export default function CalendarScreen({ navigation }: Props) {
 }
 
 function ScheduleRow({ schedule, onDelete }: { schedule: Schedule; onDelete: () => void }) {
+  const hasTime = schedule.startTime && schedule.endTime;
   return (
     <View style={styles.row}>
       <View style={styles.dot} />
-      <Text style={styles.rowTitle}>{schedule.title}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.rowTitle}>{schedule.title}</Text>
+        {hasTime && (
+          <Text style={styles.rowTime}>{schedule.startTime} ~ {schedule.endTime}</Text>
+        )}
+      </View>
       {schedule.isRecurring && <Text style={styles.badge}>반복</Text>}
       <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 12, right: 12 }}>
         <Text style={styles.deleteBtn}>✕</Text>
@@ -151,17 +157,18 @@ function ScheduleRow({ schedule, onDelete }: { schedule: Schedule; onDelete: () 
 
 function FriendAvailabilityRow({
   friend,
-  status,
+  titles,
 }: {
   friend: User;
-  status: 'busy' | 'free' | undefined;
+  titles: string[] | undefined;
 }) {
+  const isBusy = titles && titles.length > 0;
   return (
     <View style={styles.row}>
-      <View style={[styles.statusDot, status === 'busy' ? styles.statusBusy : styles.statusFree]} />
+      <View style={[styles.statusDot, isBusy ? styles.statusBusy : styles.statusFree]} />
       <Text style={styles.rowTitle}>{friend.displayName}</Text>
-      <Text style={[styles.statusLabel, status === 'busy' ? styles.statusLabelBusy : styles.statusLabelFree]}>
-        {status === 'busy' ? '바쁨' : status === 'free' ? '한가함' : '—'}
+      <Text style={[styles.statusLabel, isBusy ? styles.statusLabelBusy : styles.statusLabelFree]} numberOfLines={1}>
+        {isBusy ? titles!.join(', ') : titles ? '한가함' : '—'}
       </Text>
     </View>
   );
@@ -207,7 +214,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f5f5f5',
   },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#4A90E2', marginRight: 12 },
-  rowTitle: { flex: 1, fontSize: 15, color: '#333' },
+  rowTitle: { fontSize: 15, color: '#333' },
+  rowTime: { fontSize: 12, color: '#4A90E2', marginTop: 2 },
   badge: {
     fontSize: 11,
     color: '#4A90E2',

@@ -4,8 +4,10 @@ import { inviteRepository } from '../../data/repositories/inviteRepository';
 
 interface InviteState {
   received: Invite[];
+  sent: Invite[];
   loading: boolean;
   loadReceived: (userId: string) => Promise<void>;
+  loadSent: (userId: string) => Promise<void>;
   sendInvite: (
     fromUserId: string,
     fromDisplayName: string,
@@ -23,6 +25,7 @@ interface InviteState {
 
 export const useInviteStore = create<InviteState>((set) => ({
   received: [],
+  sent: [],
   loading: false,
 
   loadReceived: async (userId) => {
@@ -33,6 +36,13 @@ export const useInviteStore = create<InviteState>((set) => ({
     } catch {
       set({ loading: false });
     }
+  },
+
+  loadSent: async (userId) => {
+    try {
+      const sent = await inviteRepository.getSent(userId);
+      set({ sent });
+    } catch {}
   },
 
   sendInvite: async (fromUserId, fromDisplayName, toUserIds, date) => {

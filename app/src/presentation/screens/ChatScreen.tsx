@@ -70,7 +70,7 @@ export default function ChatScreen({ navigation, route }: Props) {
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
       >
         <FlatList
@@ -85,7 +85,9 @@ export default function ChatScreen({ navigation, route }: Props) {
             const isMine = item.senderId === user?.id;
             return (
               <View style={[styles.bubble, isMine ? styles.bubbleMine : styles.bubbleOther]}>
-                {!isMine && <Text style={styles.senderName}>{item.senderName}</Text>}
+                <Text style={[styles.senderName, isMine ? styles.senderNameMine : null]}>
+                  {item.senderName || '알 수 없음'}
+                </Text>
                 <View style={[styles.bubbleBody, isMine ? styles.bubbleBodyMine : styles.bubbleBodyOther]}>
                   <Text style={[styles.msgText, isMine ? styles.msgTextMine : styles.msgTextOther]}>
                     {item.text}
@@ -145,6 +147,7 @@ const styles = StyleSheet.create({
   bubbleMine: { alignItems: 'flex-end' },
   bubbleOther: { alignItems: 'flex-start' },
   senderName: { fontSize: 11, color: '#aaa', marginBottom: 3, marginLeft: 4 },
+  senderNameMine: { textAlign: 'right', marginLeft: 0, marginRight: 4 },
   bubbleBody: {
     maxWidth: '75%',
     paddingHorizontal: 14,

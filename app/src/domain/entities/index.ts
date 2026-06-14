@@ -11,6 +11,8 @@ export interface Schedule {
   isRecurring: boolean;
   daysOfWeek?: number[]; // 0=Sun~6=Sat, 고정 스케줄
   date?: string;         // 'YYYY-MM-DD', 일회성 스케줄
+  startTime?: string;    // 'HH:MM'
+  endTime?: string;      // 'HH:MM'
 }
 
 export interface Friend {
@@ -36,7 +38,7 @@ export interface Invite {
   fromDisplayName: string;
   toUserIds: string[];
   date: string;
-  responses: Record<string, { status: InviteStatus; reason?: string }>;
+  responses: Record<string, { status: InviteStatus; reason?: string; displayName?: string }>;
   chatRoomId?: string;
   createdAt?: any;
 }

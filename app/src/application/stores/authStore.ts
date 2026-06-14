@@ -22,6 +22,7 @@ interface AuthState {
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   initAuth: () => () => void;
   clearError: () => void;
 }
@@ -55,6 +56,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true });
     await authRepository.signOut();
     set({ user: null, loading: false });
+  },
+
+  resetPassword: async (email) => {
+    set({ loading: true, error: null });
+    try {
+      await authRepository.resetPassword(email);
+      set({ loading: false });
+    } catch (e: any) {
+      set({ error: mapFirebaseError(e.code ?? ''), loading: false });
+    }
   },
 
   initAuth: () => {

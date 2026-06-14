@@ -1,5 +1,6 @@
 import { Invite } from '../../domain/entities';
 import { firestore } from '../firebase/firebaseConfig';
+import { scheduleRepository } from './scheduleRepository';
 
 export const inviteRepository = {
   async create(
@@ -30,6 +31,16 @@ export const inviteRepository = {
       .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
   },
 
+  async getSent(userId: string): Promise<Invite[]> {
+    const snapshot = await firestore()
+      .collection('invites')
+      .where('fromUserId', '==', userId)
+      .get();
+    return snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() } as Invite))
+      .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+  },
+
   async respond(
     inviteId: string,
     fromUserId: string,
@@ -38,7 +49,7 @@ export const inviteRepository = {
     status: 'accepted' | 'declined' | 'deferred',
     reason?: string,
   ): Promise<string | null> {
-    const entry: { status: string; reason?: string } = { status };
+    const entry: { status: string; displayName: string; reason?: string } = { status, displayName: userName };
     if (reason) entry.reason = reason;
 
     await firestore()
@@ -60,6 +71,7 @@ export const inviteRepository = {
   ): Promise<string> {
     const inviteSnap = await firestore().collection('invites').doc(inviteId).get();
     const data = inviteSnap.data();
+    const date = data?.date ?? '';
 
     if (data?.chatRoomId) {
       await firestore()
@@ -69,6 +81,13 @@ export const inviteRepository = {
           participantIds: firestore.FieldValue.arrayUnion(acceptorId),
           [`participantNames.${acceptorId}`]: acceptorName,
         });
+      // 수락자 일정 추가
+      await scheduleRepository.add({
+        userId: acceptorId,
+        title: '모임',
+        isRecurring: false,
+        date,
+      });
       return data.chatRoomId;
     }
 
@@ -79,11 +98,18 @@ export const inviteRepository = {
       inviteId,
       participantIds: [fromUserId, acceptorId],
       participantNames: { [fromUserId]: inviterName, [acceptorId]: acceptorName },
-      date: data?.date ?? '',
+      date,
       createdAt: firestore.FieldValue.serverTimestamp(),
     });
 
     await firestore().collection('invites').doc(inviteId).update({ chatRoomId: roomRef.id });
+
+    // 초대자 + 첫 번째 수락자 일정 동시 추가
+    await Promise.all([
+      scheduleRepository.add({ userId: fromUserId, title: '모임', isRecurring: false, date }),
+      scheduleRepository.add({ userId: acceptorId, title: '모임', isRecurring: false, date }),
+    ]);
+
     return roomRef.id;
   },
 };
