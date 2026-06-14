@@ -31,7 +31,14 @@
     },
     "plugins": [
       "@react-native-firebase/app",
-      "@react-native-firebase/auth"
-    ]
+      "@react-native-firebase/auth",
+      "@react-native-firebase/messaging"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1331f256-5aa9-42cb-b662-d10674b4827c"
+      }
+    },
+    "owner": "manki2003"
   }
 }
