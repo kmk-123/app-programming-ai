@@ -50,6 +50,18 @@ jobs:
       - name: Download APK
         run: wget -q -O schedule-app.apk "$APK_URL"
 
+      - name: Write release notes
+        run: |
+          cat > release-notes.md << 'EOF'
+          ## 설치 방법
+
+          1. 아래 **schedule-app.apk** 파일을 다운로드합니다.
+          2. Android 기기에서 파일을 열어 설치합니다.
+             - 처음 설치 시 **설정 → 알 수 없는 앱 허용** 이 필요합니다.
+
+          > `main` 브랜치에 푸시될 때마다 자동으로 최신 빌드로 갱신됩니다.
+          EOF
+
       - name: Update GitHub Release (latest)
         run: |
           gh release delete latest --yes 2>/dev/null || true
@@ -57,16 +69,7 @@ jobs:
           git push origin latest --force
           gh release create latest schedule-app.apk \
             --title "친구 스케줄 매칭 — 최신 빌드" \
-            --notes "$(cat <<'NOTES'
-## 설치 방법
-
-1. 아래 **schedule-app.apk** 파일을 다운로드합니다.
-2. Android 기기에서 파일을 열어 설치합니다.
-   - 처음 설치 시 **설정 → 알 수 없는 앱 허용** 이 필요합니다.
-
-> `main` 브랜치에 푸시될 때마다 자동으로 최신 빌드로 갱신됩니다.
-NOTES
-)" \
+            --notes-file release-notes.md \
             --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
