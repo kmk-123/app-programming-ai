@@ -2,12 +2,25 @@
 
 친구들과 겹치는 빈 시간을 한눈에 확인하고 모임을 잡는 React Native 앱입니다.
 
-## 다운로드
+## 📲 앱 설치
 
-[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android&logoColor=white)](https://github.com/kmk-123/app-programming-ai/releases/latest/download/schedule-app.apk)
+<div align="center">
 
-> Android 기기에서 위 버튼을 클릭해 APK를 직접 설치할 수 있습니다.  
-> `main` 브랜치에 푸시될 때마다 GitHub Actions가 자동으로 최신 빌드를 업로드합니다.
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fgithub.com%2Fkmk-123%2Fapp-programming-ai%2Freleases%2Fdownload%2Flatest%2Fschedule-app.apk" alt="APK QR Code" width="180"/>
+
+**Android 카메라로 QR코드를 스캔하거나 아래 버튼을 눌러 설치하세요**
+
+[![APK 다운로드](https://img.shields.io/badge/APK_다운로드-최신빌드-brightgreen?style=for-the-badge&logo=android&logoColor=white)](https://github.com/kmk-123/app-programming-ai/releases/latest/download/schedule-app.apk)
+
+</div>
+
+> **설치 방법**  
+> 1. 위 QR코드 스캔 또는 버튼 클릭 → `schedule-app.apk` 다운로드  
+> 2. 다운로드된 파일 열기  
+> 3. "알 수 없는 앱 허용" 팝업 → **허용** 탭  
+> 4. **설치** 탭 → 완료 🎉  
+>
+> ※ Android 전용입니다. `main` 푸시 시 자동으로 최신 버전으로 갱신됩니다.
 
 ## 주요 기능
 
